@@ -33,7 +33,7 @@ const App = () =>{
       return transformMeeting(meeting);
     }))
     for(let page = 2; page<totalPages; page++){
-      const res = await fetch(`/wp-json/wp/v2/posts?page=${page}`);
+      const res = await fetch(`https://central.wordcamp.org/wp-json/wp/v2/posts?page=${page}`); //Adding full URl because its causing problem in Vercel for local setup /wp-json/wp/v2/posts will work fine
       const json = await res.json();
       meetings.push(...json.map(meeting =>{
         return transformMeeting(meeting);
@@ -44,7 +44,7 @@ const App = () =>{
 
   useEffect(() =>{
     const fetchData = async () =>{
-      const res = await fetch('/wp-json/wp/v2/posts');
+      const res = await fetch('https:central.wordcamp.org/wp-json/wp/v2/posts');
       const json = await res.json() ;
       const totalPages = res.headers.get('x-wp-totalpages');
       const meetings = await getMeetings(json, totalPages);
