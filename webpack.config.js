@@ -26,13 +26,14 @@ module.exports = {
             template: 'src/index.html'
         })
     ],
-    devServer: {
-      proxy: {
-        '/wp-json': {
-          target: 'https://central.wordcamp.org/',
-          secure: false,
-          changeOrigin: true
-        }
-      }
-    }
+    //Causing problem 
+    // devServer: {
+    //   proxy: {
+    //     '/wp-json': {
+    //       target: 'https://central.wordcamp.org/',
+    //       secure: false,
+    //       changeOrigin: true
+    //     }
+    //   }
+    // }
 }
