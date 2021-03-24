@@ -2,42 +2,56 @@ import React, {useState, useEffect} from 'react';
 import FullCalendar from '@fullcalendar/react';
 import daygrid from '@fullcalendar/daygrid';
 import interaction from '@fullcalendar/interaction';
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
+import Loader from 'react-loader-spinner';
 
 const App = () =>{
   const [meetups, setMeetups]  = useState([]);
-
+  const [totalPages, setTotalPages] = useState(1);
   const isEmpty = (obj) =>{
-    return Object.keys(obj).length === 0;
+    return Boolean(Object.keys(obj).length);
   }
 
-  useEffect(() =>{
-    fetch('/wp-json/wp/v2/posts') //Using API Proxy for abstraction using Devserver module of Webpack
-      .then(res => {
-        console.log(res.headers.get('x-wp-totalpages'));
-        return res.json();
-      })
-      .then(json =>{
-        setMeetups(json.map(meeting => {
-          return{
-            title: renderSpecialChars(json[0].title.rendered),
-            url: meeting.link,
-            start: meeting.date,
-            end: meeting.date
-          }
-        }))
-      })
-  }, [])
-
-
-  const handleClick = event =>{
-    console.log(event);
-  }
 
   const renderSpecialChars = (str) =>{
     const elem = document.createElement('h1');
     elem.innerHTML = str;
     return elem.innerHTML;
   }
+
+  const transformMeeting = (meeting) =>{
+    return{
+      title: renderSpecialChars(meeting.title.rendered),
+      start: meeting.date,
+      url: meeting.link
+    }
+  }
+
+  const getMeetings = async (json, totalPages) =>{
+    let meetings = [];
+    meetings.push(...json.map(meeting =>{
+      return transformMeeting(meeting);
+    }))
+    for(let page = 2; page<totalPages; page++){
+      const res = await fetch(`/wp-json/wp/v2/posts?page=${page}`);
+      const json = await res.json();
+      meetings.push(...json.map(meeting =>{
+        return transformMeeting(meeting);
+      }))
+    }
+    return meetings;
+  }
+
+  useEffect(() =>{
+    const fetchData = async () =>{
+      const res = await fetch('/wp-json/wp/v2/posts');
+      const json = await res.json() ;
+      const totalPages = res.headers.get('x-wp-totalpages');
+      const meetings = await getMeetings(json, totalPages);
+      setMeetups(meetings);
+    }
+    fetchData();
+  }, [])
 
   const navigateToEvent = info =>{
     info.jsEvent.preventDefault();
@@ -46,14 +60,16 @@ const App = () =>{
   return(
     <div>
       {
-        isEmpty(meetups) ? <></>
-        :<FullCalendar
+        meetups.length ?
+        <FullCalendar
         plugins = {[daygrid, interaction]}
-        dateClick = {handleClick}
         events = {meetups}
         eventClick = {navigateToEvent}
         />
+        :
+          <Loader type="Oval" color="#00BFFF" height={80} width={80} />
       }
+
     </div>
   )
 }
