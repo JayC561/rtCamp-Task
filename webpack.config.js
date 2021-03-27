@@ -25,8 +25,8 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: 'src/index.html'
         })
-    ],
-    //Causing problem 
+    ]
+    //Causing problem
     // devServer: {
     //   proxy: {
     //     '/wp-json': {

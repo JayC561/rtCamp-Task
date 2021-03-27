@@ -44,7 +44,7 @@ const App = () =>{
 
   useEffect(() =>{
     const fetchData = async () =>{
-      const res = await fetch('https:central.wordcamp.org/wp-json/wp/v2/posts');
+      const res = await fetch('https://central.wordcamp.org/wp-json/wp/v2/posts');
       const json = await res.json() ;
       const totalPages = res.headers.get('x-wp-totalpages');
       const meetings = await getMeetings(json, totalPages);
